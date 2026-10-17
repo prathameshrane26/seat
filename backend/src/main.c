@@ -190,7 +190,16 @@ int main(void) {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
     
-    const char *s_url = "http://localhost:5000";
+    // Dynamic port configuration for cloud deployment (Render, etc.) & local fallback
+    int port = 5000;
+    char *env_port = getenv("PORT");
+    if (env_port) {
+        port = atoi(env_port);
+    }
+
+    char s_url[64];
+    snprintf(s_url, sizeof(s_url), "http://0.0.0.0:%d", port);
+    
     printf("Starting high-performance C backend with SQLite on %s\n", s_url);
     
     if (mg_http_listen(&mgr, s_url, fn, NULL) == NULL) {
